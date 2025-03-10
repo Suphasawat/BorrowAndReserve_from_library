@@ -14,94 +14,46 @@ const db = new sqlite3.Database("./LibDB.db", (err) => {
 
 // Function to create tables
 const initDB = () => {
-  // const tables = [
-  //   `CREATE TABLE IF NOT EXISTS users (
-  //     id INTEGER PRIMARY KEY AUTOINCREMENT,
-  //     name TEXT NOT NULL,
-  //     email TEXT UNIQUE NOT NULL,
-  //     phone TEXT,
-  //     password TEXT NOT NULL,
-  //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  //   )`,
-  //   `CREATE TABLE IF NOT EXISTS items (
-  //     id INTEGER PRIMARY KEY AUTOINCREMENT,
-  //     name TEXT NOT NULL,
-  //     description TEXT,
-  //     available_quantity INTEGER NOT NULL DEFAULT 1,
-  //     total_quantity INTEGER NOT NULL,
-  //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  //   )`,
-  //   `CREATE TABLE IF NOT EXISTS loans (
-  //     id INTEGER PRIMARY KEY AUTOINCREMENT,
-  //     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  //     item_id INTEGER REFERENCES items(id) ON DELETE CASCADE,
-  //     queue_position INTEGER NOT NULL DEFAULT 1,
-  //     status TEXT CHECK (status IN ('pending', 'borrowed', 'returned', 'cancelled')) DEFAULT 'pending',
-  //     borrow_date DATE,
-  //     due_date DATE,
-  //     return_date DATE,
-  //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  //   )`,
-  //   `CREATE TABLE IF NOT EXISTS queue (
-  //     id INTEGER PRIMARY KEY AUTOINCREMENT,
-  //     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  //     item_id INTEGER REFERENCES items(id) ON DELETE CASCADE,
-  //     position INTEGER NOT NULL,
-  //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  //   )`,
-  //   `CREATE TABLE IF NOT EXISTS reservations (
-  //     id INTEGER PRIMARY KEY AUTOINCREMENT,
-  //     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  //     item_id INTEGER REFERENCES items(id) ON DELETE CASCADE,
-  //     status TEXT CHECK (status IN ('active', 'expired', 'cancelled')) DEFAULT 'active',
-  //     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  //   )`,
-  // ];
-
-  
   const tables = [
-  `CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name VARCHAR(50) NOT NULL,
-    username VARCHAR(50) UNIQUE NOT NULL,  
-    phone CHAR(9),
-    password VARCHAR(16) NOT NULL,
+    `CREATE TABLE IF NOT EXISTS Rooms (
+    room_id SERIAL PRIMARY KEY,
+    room_name VARCHAR(255) NOT NULL,
+    capacity INT NOT NULL,
+    is_available BOOLEAN DEFAULT TRUE
+)`,
+    `CREATE TABLE IF NOT EXISTS RoomBookings (
+    booking_id SERIAL PRIMARY KEY,
+    room_id INT REFERENCES Rooms(room_id) ON DELETE CASCADE,
+    user_id INT NOT NULL,  
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    status VARCHAR(50) CHECK (status IN ('Booked', 'Cancelled', 'Expired')) DEFAULT 'Booked',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  )`,
-  `CREATE TABLE IF NOT EXISTS items (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description VARCHAR(255),
-    available_quantity INTEGER NOT NULL DEFAULT 1,
-    total_quantity INTEGER NOT NULL,
+)`,
+    `CREATE TABLE IF NOT EXISTS Equipment (
+    equipment_id SERIAL PRIMARY KEY,
+    equipment_name VARCHAR(255) NOT NULL,
+    total_quantity INT NOT NULL,
+    available_quantity INT NOT NULL CHECK (available_quantity >= 0)
+)`,
+    `CREATE TABLE IF NOT EXISTS EquipmentBookings (
+    booking_id SERIAL PRIMARY KEY,
+    equipment_id INT REFERENCES Equipment(equipment_id) ON DELETE CASCADE,
+    user_id INT NOT NULL,  -- ควรอ้างอิงกับตาราง Users
+    queue_position INT NOT NULL,
+    expected_wait_time INTERVAL,
+    return_due TIMESTAMP,
+    status VARCHAR(50) CHECK (status IN ('Waiting', 'In Use', 'Returned', 'Cancelled')) DEFAULT 'Waiting',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  )`,
-  `CREATE TABLE IF NOT EXISTS loans (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    item_id INTEGER REFERENCES items(id) ON DELETE CASCADE,
-    queue_position INTEGER NOT NULL DEFAULT 1,
-    status TEXT CHECK (status IN ('pending', 'borrowed', 'returned', 'cancelled')) DEFAULT 'pending',
-    borrow_date DATE,
-    due_date DATE,
-    return_date DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  )`,
-  `CREATE TABLE IF NOT EXISTS queue (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    item_id INTEGER REFERENCES items(id) ON DELETE CASCADE,
-    position INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  )`,
-  `CREATE TABLE IF NOT EXISTS reservations (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    item_id INTEGER REFERENCES items(id) ON DELETE CASCADE,
-    status TEXT CHECK (status IN ('active', 'expired', 'cancelled')) DEFAULT 'active',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  )`
-];
+)`,
+    `CREATE TABLE IF NOT EXISTS Notifications (
+    notification_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL, 
+    message TEXT NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN DEFAULT FALSE
+)`,
+  ];
 
   db.serialize(() => {
     tables.forEach((query) => {
@@ -127,8 +79,8 @@ const runQuery = (query, params = []) => {
 // User registration endpoint
 app.post("/register", async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
-    if (!name || !email || !password) {
+    const { name, email: username, phone, password } = req.body;
+    if (!name || !username || !password) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -136,7 +88,7 @@ app.post("/register", async (req, res) => {
 
     await runQuery(
       `INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)`,
-      [name, email, phone, hashedPassword]
+      [name, username, phone, hashedPassword]
     );
 
     res.status(201).json({ message: "User registered successfully" });

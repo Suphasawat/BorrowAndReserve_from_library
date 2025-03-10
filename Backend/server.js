@@ -14,7 +14,7 @@ const db = new sqlite3.Database("./LibDB.db", (err) => {
 
 // Function to initialize database
 const initDB = () => {
-  const sql = `
+  const Tables = `
   CREATE TABLE IF NOT EXISTS Users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -105,7 +105,7 @@ const initDB = () => {
   );
   `;
 
-  db.exec(sql, (err) => {
+  db.exec(Tables, (err) => {
     if (err) console.error("Error initializing database:", err.message);
     else console.log("Database initialized.");
   });
@@ -116,7 +116,7 @@ initDB();
 // Helper function to run database queries with Promises
 const runQuery = (query, params = []) =>
   new Promise((resolve, reject) => {
-    db.run(query, params, function (err) {
+    db.run(query, params, (err) => {
       if (err) reject(err);
       else resolve(this);
     });
@@ -145,7 +145,7 @@ const validateFields = (fields) => (req, res, next) => {
 // User registration endpoint
 app.post(
   "/register",
-  validateFields(["name", "username", "password"]),
+  validateFields(["name", "username", "password", "phone"]),
   async (req, res) => {
     try {
       const { name, username, phone, password } = req.body;
@@ -188,7 +188,7 @@ app.post(
       const token = jwt.sign(
         { id: user[0].id, username: user[0].username },
         "secret",
-        { expiresIn: "1h" }
+        { expiresIn: "15m" }
       );
       res.status(200).json({ message: "Login successful", token });
     } catch (error) {
@@ -198,6 +198,56 @@ app.post(
     }
   }
 );
+
+// app.post("/login", validateFields(["username", "password"]), async (req, res) => {
+//   try {
+//     const { username, password } = req.body;
+
+//     // ตรวจสอบว่าผู้ใช้มีอยู่ในฐานข้อมูลหรือไม่
+//     const user = await allQuery(`SELECT * FROM Users WHERE username = ?`, [username]);
+
+//     if (user.length > 0) {
+//       // มีบัญชีในระบบ -> ตรวจสอบรหัสผ่าน
+//       const validPassword = await argon2.verify(user[0].password, password);
+//       if (!validPassword) {
+//         return res.status(401).json({ message: "Invalid credentials" });
+//       }
+
+//       // สร้าง Token สำหรับเข้าสู่ระบบ
+//       const token = jwt.sign({ id: user[0].id, username: user[0].username }, "secret", {
+//         expiresIn: "1h",
+//       });
+//       return res.status(200).json({ message: "Login successful", token });
+//     }
+
+//     // ตรวจสอบว่า username อยู่ในช่วงพิเศษหรือไม่ (b6521600000 - b6521609999)
+//     const regex = /^b652160\d{4}$/;
+//     if (!regex.test(username)) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     // ✅ ถ้า username อยู่ในช่วงที่กำหนด -> ให้สร้างบัญชีอัตโนมัติและล็อกอิน
+//     const defaultPassword = await argon2.hash(password); // ใช้รหัสผ่านที่ผู้ใช้ป้อนมา
+//     const result = await runQuery(
+//       `INSERT INTO Users (name, username, phone, password) VALUES (?, ?, ?, ?)`,
+//       ["Nisit", username, "", defaultPassword]
+//     );
+
+//     // ดึงข้อมูลผู้ใช้ใหม่ที่เพิ่งสร้าง
+//     const newUser = await allQuery(`SELECT * FROM Users WHERE username = ?`, [username]);
+
+//     // สร้าง Token สำหรับเข้าสู่ระบบ
+//     const token = jwt.sign({ id: newUser[0].id, username: newUser[0].username }, "secret", {
+//       expiresIn: "1h",
+//     });
+
+//     res.status(201).json({ message: "Guest login successful", token });
+
+//   } catch (error) {
+//     res.status(500).json({ message: "Error logging in", error: error.message });
+//   }
+// });
+
 
 // Start server
 app.listen(port, () => {

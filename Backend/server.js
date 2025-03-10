@@ -63,7 +63,7 @@ const initDB = () => {
   `CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(50) NOT NULL,
-    email VARCHAR(125) UNIQUE NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,  
     phone CHAR(9),
     password VARCHAR(16) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

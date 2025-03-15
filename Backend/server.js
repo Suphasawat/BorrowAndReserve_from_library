@@ -6,6 +6,7 @@ import {
   registerUser,
   loginUser,
   addEquipment,
+  room_avaible,
   addItem,
   addRoom,
   getRooms,
@@ -36,9 +37,10 @@ app.post(
   registerUser
 );
 app.post("/login", validateFields(["username", "password"]), loginUser);
-app.post("/admin/equipment", isAdmin, addEquipment);
-app.post("/admin/items", isAdmin, addItem);
-app.post("/admin/rooms", isAdmin, addRoom);
+app.get("/room_avaible", room_avaible);
+app.post("/admin/equipment", [isAdmin, validateFields(["equipment_name", "total_quantity"])], addEquipment);
+app.post("/admin/items", [isAdmin, validateFields(["name", "description", "total_quantity"])], addItem);
+app.post("/admin/rooms", [isAdmin, validateFields(["room_name", "capacity"])], addRoom);
 app.get("/rooms", getRooms);
 app.get("/schedule", getSchedule);
 app.post(
@@ -51,10 +53,18 @@ app.get("/items", getItems);
 app.get("/queue/:itemId", getQueue);
 app.get("/loans/:userId", getLoans);
 app.get("/notifications/:userId", getNotifications);
-app.put("/notifications/read/:userId", markNotificationsAsRead);
-app.put("/bookings/update-status", updateBookingStatus);
+app.put(
+  "/notifications/read/:userId",
+  validateFields(["userId"]),
+  markNotificationsAsRead
+);
+app.put(
+  "/bookings/update-status",
+  validateFields(["booking_id", "new_status"]),
+  updateBookingStatus
+);
 app.get("/settings/:userId", getSettings);
-app.put("/settings/:userId", updateSettings);
+app.put("/settings/:userId",validateFields(["userId"]), updateSettings);
 
 // Start server
 app.listen(port, () => {

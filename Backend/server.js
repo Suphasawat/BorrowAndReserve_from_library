@@ -53,7 +53,7 @@ const initDB = () => {
     equipment_id INTEGER REFERENCES Equipment(equipment_id) ON DELETE CASCADE,
     user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE,
     queue_position INTEGER NOT NULL,
-    expected_wait_time TEXT, 
+    expected_wait_time TEXT,
     return_due TIMESTAMP,
     status TEXT CHECK (status IN ('Waiting', 'In Use', 'Returned', 'Cancelled')) DEFAULT 'Waiting',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -198,56 +198,6 @@ app.post(
     }
   }
 );
-
-// app.post("/login", validateFields(["username", "password"]), async (req, res) => {
-//   try {
-//     const { username, password } = req.body;
-
-//     // ตรวจสอบว่าผู้ใช้มีอยู่ในฐานข้อมูลหรือไม่
-//     const user = await allQuery(`SELECT * FROM Users WHERE username = ?`, [username]);
-
-//     if (user.length > 0) {
-//       // มีบัญชีในระบบ -> ตรวจสอบรหัสผ่าน
-//       const validPassword = await argon2.verify(user[0].password, password);
-//       if (!validPassword) {
-//         return res.status(401).json({ message: "Invalid credentials" });
-//       }
-
-//       // สร้าง Token สำหรับเข้าสู่ระบบ
-//       const token = jwt.sign({ id: user[0].id, username: user[0].username }, "secret", {
-//         expiresIn: "1h",
-//       });
-//       return res.status(200).json({ message: "Login successful", token });
-//     }
-
-//     // ตรวจสอบว่า username อยู่ในช่วงพิเศษหรือไม่ (b6521600000 - b6521609999)
-//     const regex = /^b652160\d{4}$/;
-//     if (!regex.test(username)) {
-//       return res.status(401).json({ message: "Invalid credentials" });
-//     }
-
-//     // ✅ ถ้า username อยู่ในช่วงที่กำหนด -> ให้สร้างบัญชีอัตโนมัติและล็อกอิน
-//     const defaultPassword = await argon2.hash(password); // ใช้รหัสผ่านที่ผู้ใช้ป้อนมา
-//     const result = await runQuery(
-//       `INSERT INTO Users (name, username, phone, password) VALUES (?, ?, ?, ?)`,
-//       ["Nisit", username, "", defaultPassword]
-//     );
-
-//     // ดึงข้อมูลผู้ใช้ใหม่ที่เพิ่งสร้าง
-//     const newUser = await allQuery(`SELECT * FROM Users WHERE username = ?`, [username]);
-
-//     // สร้าง Token สำหรับเข้าสู่ระบบ
-//     const token = jwt.sign({ id: newUser[0].id, username: newUser[0].username }, "secret", {
-//       expiresIn: "1h",
-//     });
-
-//     res.status(201).json({ message: "Guest login successful", token });
-
-//   } catch (error) {
-//     res.status(500).json({ message: "Error logging in", error: error.message });
-//   }
-// });
-
 
 // Start server
 app.listen(port, () => {

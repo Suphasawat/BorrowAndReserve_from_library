@@ -28,6 +28,7 @@ export const initDB = () => {
       booking_id INTEGER PRIMARY KEY AUTOINCREMENT,
       room_id INTEGER REFERENCES Rooms(room_id) ON DELETE CASCADE,
       user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE,
+      booking_date DATE ,
       start_time TIMESTAMP NOT NULL,
       end_time TIMESTAMP NOT NULL,
       status TEXT CHECK (status IN ('Booked', 'Cancelled', 'Expired')) DEFAULT 'Booked',

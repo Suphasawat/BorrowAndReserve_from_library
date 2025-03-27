@@ -5,14 +5,11 @@ import { validateFields, isAdmin } from "./src/middleware/middleware.js";
 import {
   registerUser,
   loginUser,
-  addEquipment,
-  room_avaible,
   addItem,
   addRoom,
   getRooms,
   getSchedule,
   bookRoom,
-  cancelBooking,
   getItems,
   getQueue,
   getLoans,
@@ -37,34 +34,62 @@ app.post(
   registerUser
 );
 app.post("/login", validateFields(["username", "password"]), loginUser);
-app.get("/room_avaible", room_avaible);
-app.post("/admin/equipment", [isAdmin, validateFields(["equipment_name", "total_quantity"])], addEquipment);
-app.post("/admin/items", [isAdmin, validateFields(["name", "description", "total_quantity"])], addItem);
-app.post("/admin/rooms", [isAdmin, validateFields(["room_name", "capacity"])], addRoom);
+app.post(
+  "/admin/items",
+  [
+    isAdmin,
+    validateFields([
+      "name",
+      "description",
+      "available_quantity",
+      "total_quantity",
+    ]),
+  ],
+  addItem
+);
+app.post(
+  "/admin/rooms",
+  [isAdmin, validateFields(["room_name", "capacity"])],
+  addRoom
+);
 app.get("/rooms", getRooms);
 app.get("/schedule", getSchedule);
 app.post(
   "/book",
-  validateFields(["user_id", "room_id", "start_time", "end_time"]),
+  validateFields([
+    "user_id",
+    "booking_date",
+    "room_id",
+    "start_time",
+    "end_time",
+  ]),
   bookRoom
 );
-app.post("/cancel", validateFields(["booking_id"]), cancelBooking);
 app.get("/items", getItems);
 app.get("/queue/:itemId", getQueue);
-app.get("/loans/:userId", getLoans);
+app.get("/loans/:userId", getLoans); // กำลังแก้
 app.get("/notifications/:userId", getNotifications);
-app.put(
-  "/notifications/read/:userId",
-  validateFields(["userId"]),
+app.post(
+  "/notifications/send",
+  validateFields(["user_id", "message"]),
+  sendNotification
+);
+app.post(
+  "/notifications/read/:user_id",
+  validateFields(["user_id"]),
   markNotificationsAsRead
 );
-app.put(
+app.post(
   "/bookings/update-status",
-  validateFields(["booking_id", "new_status"]),
+  validateFields(["booking_id", "status"]),
   updateBookingStatus
 );
-app.get("/settings/:userId", getSettings);
-app.put("/settings/:userId",validateFields(["userId"]), updateSettings);
+app.get("/settings/:user_id", getSettings);
+app.post(
+  "/settings",
+  validateFields(["user_id", "theme", "notifications_enabled"]),
+  updateSettings
+);
 
 // Start server
 app.listen(port, () => {

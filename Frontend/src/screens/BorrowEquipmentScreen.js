@@ -1,13 +1,7 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TextInput,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import BorrowEquipmentCard from "../Component/BorrowEquipmentCard";
+import BorrowEquipmentCard from "../components/BorrowEquipmentCard";
 
 const BorrowEquipmentScreen = () => {
   const [searchText, setSearchText] = useState("");
@@ -57,7 +51,9 @@ const BorrowEquipmentScreen = () => {
         <Text style={styles.equipmentListTitle}>อุปกรณ์ทั้งหมด</Text>
         <FlatList
           data={equipment}
-          renderItem={({ item }) => <BorrowEquipmentCard equipmentData={item} />} // เรียกใช้ Card
+          renderItem={({ item }) => (
+            <BorrowEquipmentCard equipmentData={item} />
+          )} // เรียกใช้ Card
           keyExtractor={(item) => item.id}
         />
       </View>

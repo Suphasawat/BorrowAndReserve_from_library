@@ -7,7 +7,7 @@ import {
   FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { rooms } from "../ServiceAPI/API";
+import { rooms } from "../services/api";
 
 const BookingScreen = ({ navigation }) => {
   const [rooms, setRooms] = useState([rooms]);
@@ -35,10 +35,20 @@ const BookingScreen = ({ navigation }) => {
         <Text style={styles.headerTitle}>Rooms</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
-            <Ionicons name="notifications-outline" size={28} color="white" style={styles.icon}/>
+            <Ionicons
+              name="notifications-outline"
+              size={28}
+              color="white"
+              style={styles.icon}
+            />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-            <Ionicons name="person-circle-outline" size={28} color="white" style={styles.icon}/>
+            <Ionicons
+              name="person-circle-outline"
+              size={28}
+              color="white"
+              style={styles.icon}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -80,7 +90,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     backgroundColor: "#122620",
-    
   },
   headerTitle: {
     fontSize: 22,

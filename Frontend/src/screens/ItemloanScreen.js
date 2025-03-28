@@ -1,7 +1,14 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import BorrowEquipmentCard from "../Component/BorrowEquipmentCard";
+import BorrowEquipmentCard from "../components/BorrowEquipmentCard";
 import iconSet from "@expo/vector-icons/build/Fontisto";
 
 const ItemloanScreen = ({ navigation }) => {
@@ -28,27 +35,27 @@ const ItemloanScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* ส่วนหัว */}
-       <View style={styles.header}>
-              <Text style={styles.headerTitle}>Items</Text>
-              <View style={styles.headerIcons}>
-                <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
-                  <Ionicons
-                    name="notifications-outline"
-                    size={28}
-                    color="white"
-                    style={styles.icon}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.replace("Profile")}>
-                  <Ionicons
-                    name="person-circle-outline"
-                    size={28}
-                    color="white"
-                    style={styles.icon}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Items</Text>
+        <View style={styles.headerIcons}>
+          <TouchableOpacity onPress={() => navigation.navigate("Notification")}>
+            <Ionicons
+              name="notifications-outline"
+              size={28}
+              color="white"
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.replace("Profile")}>
+            <Ionicons
+              name="person-circle-outline"
+              size={28}
+              color="white"
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* ช่องค้นหา */}
       <View style={styles.searchBar}>

@@ -11,7 +11,7 @@ import QueueReservation from "./src/screens/QueueReservation";
 import ItemloanScreen from "./src/screens/ItemloanScreen";
 import BookingScreen from "./src/screens/BookingScreen";
 import BorrowEquipmentScreen from "./src/screens/BorrowEquipmentScreen";
-import CurrentlyBorrowing from "./src/screens/CurrentlyBorrowing";
+import CurrentlyBorrowingContent from "./src/screens/CurrentlyBorrowingContent";
 
 const Tab = createBottomTabNavigator();
 
@@ -31,7 +31,10 @@ export default function App() {
           name="BorrowEquipmentScreen"
           component={BorrowEquipmentScreen}
         />
-        <Tab.Screen name="CurrentlyBorrowing" component={CurrentlyBorrowing} />
+        <Tab.Screen
+          name="CurrentlyBorrowing"
+          component={CurrentlyBorrowingContent}
+        />
       </Tab.Navigator>
     </NavigationContainer>
   );

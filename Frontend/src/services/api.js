@@ -37,3 +37,23 @@ export const getUser = async () => {
   }
 };
 
+export const loanItems = async (
+  user_id,
+  item_id,
+  quantity,
+  borrow_date,
+  return_date
+) => {
+  try {
+    const response = await axios.post(`${API_URL}/loans`, {
+      user_id,
+      item_id,
+      quantity,
+      borrow_date,
+      return_date,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Error loan items");
+  }
+};

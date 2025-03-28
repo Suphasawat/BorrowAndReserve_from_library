@@ -2,10 +2,12 @@ import axios from "axios";
 
 const API_URL = "http://192.168.1.15:5000";
 
-export const registerUser = async (username, password) => {
+export const registerUser = async (name, username, phone, password) => {
   try {
     const response = await axios.post(`${API_URL}/register`, {
+      name,
       username,
+      phone,
       password,
     });
     return response.data;

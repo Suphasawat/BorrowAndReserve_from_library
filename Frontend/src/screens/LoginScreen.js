@@ -9,20 +9,23 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { registerUser } from "../services/api";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    if (!username || !password) {
-      Alert.alert("แจ้งเตือน", "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน");
-
-      return;
+  const handleLogin = async ({ navigation }) => {
+    try {
+      const token = await registerUser(username, password);
+      if (token) {
+        Alert.alert("สําเร็จ", "เข้าสู่ระบบเรียบร้อย");
+        navigation.navigate("Main", { screen: "Library" });
+      }
+    } catch (error) {
+      Alert.alert("แจ้งเตือน", error.message);
     }
-    Alert.alert("สำเร็จ", "เข้าสู่ระบบเรียบร้อย");
-    navigation.navigate("Main", { screen: "Library" });
   };
 
   return (
@@ -45,7 +48,7 @@ const LoginScreen = () => {
         <Ionicons name="log-in" size={20} color="#fff" />
         <Text style={styles.buttonText}>เข้าสู่ระบบ</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Regis")}>
+      <TouchableOpacity onPress={() => navigation.navigate("Register")}>
         <Text style={styles.link}>ยังไม่มีบัญชี? ลงทะเบียน</Text>
       </TouchableOpacity>
     </View>

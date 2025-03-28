@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { registerUser } from "../services/api";
 
 const RegisterScreen = () => {
   const navigation = useNavigation();
@@ -18,17 +19,21 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleRegister = () => {
-    if (!name || !username || !phone || !password || !confirmPassword) {
-      Alert.alert("แจ้งเตือน", "กรุณากรอกข้อมูลให้ครบทุกช่อง");
-      return;
+  const handleRegister = async ({ navigation }) => {
+    try {
+      const response = await registerUser(name, username, phone, password);
+
+      if (password !== confirmPassword) {
+        Alert.alert("แจ้งเตือน", "รหัสผ่านไม่ตรงกัน");
+        return;
+      }
+      if (response) {
+        Alert.alert("สำเร็จ", "ลงทะเบียนเรียบร้อย");
+        navigation.navigate("Login");
+      }
+    } catch (error) {
+      Alert.alert("แจ้งเตือน", error.message);
     }
-    if (password !== confirmPassword) {
-      Alert.alert("แจ้งเตือน", "รหัสผ่านไม่ตรงกัน");
-      return;
-    }
-    Alert.alert("สำเร็จ", "ลงทะเบียนเรียบร้อย");
-    navigation.navigate("Login");
   };
 
   return (

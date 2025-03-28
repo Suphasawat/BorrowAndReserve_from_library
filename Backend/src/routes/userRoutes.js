@@ -48,6 +48,11 @@ export const loginUser = async (req, res) => {
   }
 };
 
+export const getUser = async (req, res) => {
+  try {
+  } catch (error) {}
+};
+
 export const addItem = async (req, res) => {
   try {
     const { name, description, available_quantity, total_quantity } = req.body;

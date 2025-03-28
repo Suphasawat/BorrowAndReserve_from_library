@@ -9,19 +9,19 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { registerUser } from "../services/api";
+import { loginUser } from "../services/api";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async ({ navigation }) => {
+  const handleLogin = async () => {
     try {
-      const token = await registerUser(username, password);
+      const token = await loginUser(username, password);
       if (token) {
         Alert.alert("สําเร็จ", "เข้าสู่ระบบเรียบร้อย");
-        navigation.navigate("Main", { screen: "Library" });
+        navigation.navigate("Library");
       }
     } catch (error) {
       Alert.alert("แจ้งเตือน", error.message);

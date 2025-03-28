@@ -19,14 +19,14 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleRegister = async ({ navigation }) => {
+  const handleRegister = async () => {
+    if (password !== confirmPassword) {
+      Alert.alert("แจ้งเตือน", "รหัสผ่านไม่ตรงกัน");
+      return;
+    }
+
     try {
       const response = await registerUser(name, username, phone, password);
-
-      if (password !== confirmPassword) {
-        Alert.alert("แจ้งเตือน", "รหัสผ่านไม่ตรงกัน");
-        return;
-      }
       if (response) {
         Alert.alert("สำเร็จ", "ลงทะเบียนเรียบร้อย");
         navigation.navigate("Login");

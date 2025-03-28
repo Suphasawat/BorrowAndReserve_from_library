@@ -19,6 +19,7 @@ import {
   updateBookingStatus,
   getSettings,
   updateSettings,
+  getUser,
 } from "./src/routes/userRoutes.js";
 
 const app = express();
@@ -34,6 +35,7 @@ app.post(
   registerUser
 );
 app.post("/login", validateFields(["username", "password"]), loginUser);
+app.get("/user", getUser);
 app.post(
   "/admin/items",
   [

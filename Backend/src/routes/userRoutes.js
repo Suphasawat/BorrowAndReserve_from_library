@@ -423,3 +423,16 @@ export const updateSettings = async (req, res) => {
       .json({ message: "Error updating settings", error: error.message });
   }
 };
+
+export const loanItems = async (req, res) => {
+  try {
+    const { user_id, item_id, quantity, borrow_date, return_date } = req.body;
+    const sql = `INSERT INTO Loans (user_id, item_id, quantity, borrow_date, return_date) VALUES (?, ?, ?, ?, ?)`;
+    await runQuery(sql, [user_id, item_id, quantity, borrow_date, return_date]);
+    res.json({ message: "Items loaned successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error loaning items", error: error.message });
+  }
+};

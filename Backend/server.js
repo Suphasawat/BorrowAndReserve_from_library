@@ -20,6 +20,7 @@ import {
   getSettings,
   updateSettings,
   getUser,
+  loanItems,
 } from "./src/routes/userRoutes.js";
 
 const app = express();
@@ -66,6 +67,17 @@ app.post(
     "end_time",
   ]),
   bookRoom
+);
+app.post(
+  "/loans",
+  validateFields([
+    "user_id",
+    "item_id",
+    "quantity",
+    "borrow_date",
+    "return_date",
+  ]),
+  loanItems
 );
 app.get("/items", getItems);
 app.get("/queue/:itemId", getQueue);

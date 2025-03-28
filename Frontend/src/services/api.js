@@ -36,3 +36,4 @@ export const getUser = async () => {
     throw new Error(error.response?.data?.message || "Error get user");
   }
 };
+

@@ -28,7 +28,7 @@ export const initDB = () => {
       booking_id INTEGER PRIMARY KEY AUTOINCREMENT,
       room_id INTEGER REFERENCES Rooms(room_id) ON DELETE CASCADE,
       user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE,
-      booking_date DATE ,
+      booking_date DATE,
       start_time TIMESTAMP NOT NULL,
       end_time TIMESTAMP NOT NULL,
       status TEXT CHECK (status IN ('Booked', 'Cancelled', 'Expired')) DEFAULT 'Booked',
@@ -48,47 +48,13 @@ export const initDB = () => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE,
       item_id INTEGER REFERENCES Items(id) ON DELETE CASCADE,
-      queue_position INTEGER NOT NULL DEFAULT 1,
       status TEXT CHECK (status IN ('pending', 'borrowed', 'returned', 'cancelled')) DEFAULT 'pending',
       borrow_date DATE,
       due_date DATE,
       return_date DATE,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-  
-    CREATE TABLE IF NOT EXISTS Queue (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE,
-      item_id INTEGER REFERENCES Items(id) ON DELETE CASCADE,
-      position INTEGER NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-  
-    CREATE TABLE IF NOT EXISTS Reservations (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE,
-      item_id INTEGER REFERENCES Items(id) ON DELETE CASCADE,
-      status TEXT CHECK (status IN ('active', 'expired', 'cancelled')) DEFAULT 'active',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-  
-    CREATE TABLE IF NOT EXISTS Notifications (
-      notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE,
-      message TEXT NOT NULL,
-      sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      is_read BOOLEAN DEFAULT FALSE
-    );
-
-    CREATE TABLE IF NOT EXISTS Settings (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE,
-  theme TEXT CHECK (theme IN ('light', 'dark')) DEFAULT 'light',
-  notifications_enabled BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-    `;
+  `;
 
   db.exec(Tables, (err) => {
     if (err) console.error("Error initializing database:", err.message);

@@ -4,14 +4,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import LoginScreen from "./src/screens/LoginScreen";
 import RegisterScreen from "./src/screens/RegisterScreen";
-import LibraryScreen from "./src/screens/LibraryScreen";
-import ProfileScreen from "./src/screens/ProfileScreen";
-import NotificationScreen from "./src/screens/NotificationScreen";
-import QueueReservation from "./src/screens/QueueReservation";
-import ItemloanScreen from "./src/screens/ItemloanScreen";
+import ItemScreen from "./src/screens/ItemScreen";
+import RoomScreen from "./src/screens/RoomScreen";
+import MakeLoanScreen from "./src/screens/MakeLoanScreen";
 import BookingScreen from "./src/screens/BookingScreen";
-import BorrowEquipmentScreen from "./src/screens/BorrowEquipmentScreen";
-import CurrentlyBorrowingContent from "./src/screens/CurrentlyBorrowingContent";
 
 const Tab = createBottomTabNavigator();
 
@@ -21,20 +17,10 @@ export default function App() {
       <Tab.Navigator initialRouteName="Login">
         <Tab.Screen name="Login" component={LoginScreen} />
         <Tab.Screen name="Register" component={RegisterScreen} />
-        <Tab.Screen name="Library" component={LibraryScreen} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
-        <Tab.Screen name="Notification" component={NotificationScreen} />
-        <Tab.Screen name="QueueReservation" component={QueueReservation} />
-        <Tab.Screen name="ItemloanScreen" component={ItemloanScreen} />
-        <Tab.Screen name="BookingScreen" component={BookingScreen} />
-        <Tab.Screen
-          name="BorrowEquipmentScreen"
-          component={BorrowEquipmentScreen}
-        />
-        <Tab.Screen
-          name="CurrentlyBorrowing"
-          component={CurrentlyBorrowingContent}
-        />
+        <Tab.Screen name="Item" component={ItemScreen} />
+        <Tab.Screen name="Room" component={RoomScreen} />
+        <Tab.Screen name="MakeLoan" component={MakeLoanScreen} />
+        <Tab.Screen name="Booking" component={BookingScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

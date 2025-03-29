@@ -5,7 +5,8 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
+  Modal,
+  Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -18,21 +19,25 @@ const RegisterScreen = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleRegister = async () => {
     if (password !== confirmPassword) {
-      Alert.alert("แจ้งเตือน", "รหัสผ่านไม่ตรงกัน");
+      alert("รหัสผ่านไม่ตรงกัน");
       return;
     }
 
     try {
       const response = await registerUser(name, username, phone, password);
       if (response) {
-        Alert.alert("สำเร็จ", "ลงทะเบียนเรียบร้อย");
-        navigation.navigate("Login");
+        setModalVisible(true); // Show modal after successful registration
+        setTimeout(() => {
+          setModalVisible(false); // Close modal after a delay
+          navigation.navigate("Login");
+        }, 2000); // Delay before navigating
       }
     } catch (error) {
-      Alert.alert("แจ้งเตือน", error.message);
+      alert(error.message);
     }
   };
 
@@ -79,6 +84,26 @@ const RegisterScreen = () => {
       <TouchableOpacity onPress={() => navigation.navigate("Login")}>
         <Text style={styles.link}>มีบัญชีอยู่แล้ว? เข้าสู่ระบบ</Text>
       </TouchableOpacity>
+
+      {/* Modal Popup */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>ลงทะเบียนสำเร็จ</Text>
+            <Pressable
+              onPress={() => setModalVisible(false)}
+              style={styles.modalButton}
+            >
+              <Text style={styles.modalButtonText}>ตกลง</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -132,6 +157,34 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 15,
     textDecorationLine: "underline",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  modalButton: {
+    backgroundColor: "#007AFF",
+    padding: 10,
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

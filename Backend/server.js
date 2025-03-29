@@ -5,104 +5,106 @@ import { validateFields, isAdmin } from "./src/middleware/middleware.js";
 import {
   registerUser,
   loginUser,
-  addItem,
   addRoom,
-  getRooms,
-  getSchedule,
-  bookRoom,
-  getItems,
-  getQueue,
-  getLoans,
-  sendNotification,
-  getNotifications,
-  markNotificationsAsRead,
-  updateBookingStatus,
-  getSettings,
-  updateSettings,
-  getUser,
-  loanItems,
+  addItems,
+  addLoan,
+  addBooking,
+  getAllUsers,
+  getAllRooms,
+  getAllItems,
+  getAllLoans,
+  getAllBookings,
+  updateRoomAvailability,
 } from "./src/routes/userRoutes.js";
 
 const app = express();
 const port = 5000;
+
 app.use(express.json());
 app.use(cors());
 
+// Initialize DB connection
 initDB();
 
+// Register User Route
 app.post(
   "/register",
   validateFields(["name", "username", "phone", "password"]),
   registerUser
 );
+
+// Login User Route
 app.post("/login", validateFields(["username", "password"]), loginUser);
-app.get("/user", getUser);
+
+// Add Room Route
 app.post(
-  "/admin/items",
-  [
-    isAdmin,
-    validateFields([
-      "name",
-      "description",
-      "available_quantity",
-      "total_quantity",
-    ]),
-  ],
-  addItem
-);
-app.post(
-  "/admin/rooms",
-  [isAdmin, validateFields(["room_name", "capacity"])],
+  "/add-room",
+  isAdmin,
+  validateFields(["room_name", "capacity"]),
   addRoom
 );
-app.get("/rooms", getRooms);
-app.get("/schedule", getSchedule);
+
+// Add Items Route
 app.post(
-  "/book",
+  "/add-items",
+  isAdmin,
   validateFields([
-    "user_id",
-    "booking_date",
-    "room_id",
-    "start_time",
-    "end_time",
+    "name",
+    "description",
+    "available_quantity",
+    "total_quantity",
   ]),
-  bookRoom
+  addItems
 );
+
+// Add Loan Route
 app.post(
-  "/loans",
+  "/add-loan",
   validateFields([
     "user_id",
     "item_id",
-    "quantity",
+    "status",
     "borrow_date",
+    "due_date",
     "return_date",
   ]),
-  loanItems
+  addLoan
 );
-app.get("/items", getItems);
-app.get("/queue/:itemId", getQueue);
-app.get("/loans/:userId", getLoans); // กำลังแก้
-app.get("/notifications/:userId", getNotifications);
+
+// Add Booking Route
 app.post(
-  "/notifications/send",
-  validateFields(["user_id", "message"]),
-  sendNotification
+  "/add-booking",
+  validateFields([
+    "room_id",
+    "user_id",
+    "booking_date",
+    "start_time",
+    "end_time",
+    "status",
+  ]),
+  addBooking
 );
+
+// Get All Users Route
+app.get("/users", getAllUsers);
+
+// Get All Rooms Route
+app.get("/rooms", getAllRooms);
+
+// Get All Items Route
+app.get("/items", getAllItems);
+
+// Get All Loans Route
+app.get("/loans", getAllLoans);
+
+// Get All Bookings Route
+app.get("/bookings", getAllBookings);
+
+// เพิ่ม Route
 app.post(
-  "/notifications/read/:user_id",
-  validateFields(["user_id"]),
-  markNotificationsAsRead
-);
-app.post(
-  "/bookings/update-status",
-  validateFields(["booking_id", "status"]),
-  updateBookingStatus
-);
-app.get("/settings/:user_id", getSettings);
-app.post(
-  "/settings",
-  validateFields(["user_id", "theme", "notifications_enabled"]),
-  updateSettings
+  "/update-room-availability",
+  validateFields(["room_id", "is_available"]),
+  updateRoomAvailability
 );
 
 // Start server

@@ -1,25 +1,25 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "./src/screens/LoginScreen";
 import RegisterScreen from "./src/screens/RegisterScreen";
 import ItemScreen from "./src/screens/ItemScreen";
 import MakeLoanScreen from "./src/screens/MakeLoanScreen";
 import BookingScreen from "./src/screens/BookingScreen";
 
-const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Tab.Navigator initialRouteName="Login">
-        <Tab.Screen name="Login" component={LoginScreen} />
-        <Tab.Screen name="Register" component={RegisterScreen} />
-        <Tab.Screen name="Item" component={ItemScreen} />
-        <Tab.Screen name="MakeLoan" component={MakeLoanScreen} />
-        <Tab.Screen name="Booking" component={BookingScreen} />
-      </Tab.Navigator>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Item" component={ItemScreen} />
+        <Stack.Screen name="MakeLoan" component={MakeLoanScreen} />
+        <Stack.Screen name="Booking" component={BookingScreen} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }

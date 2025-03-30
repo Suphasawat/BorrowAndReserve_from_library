@@ -103,9 +103,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { addLoan, getAllUsers } from "../services/api";
 
 const MakeLoanScreen = ({ route, navigation }) => {
-  const { username, token } = route.params || {};
+  const { username, token, item_id } = route.params || {}; // Receive item_id from params
 
-  const [item_id, setItemId] = useState("");
   const [borrow_date, setBorrowDate] = useState("");
   const [return_date, setReturnDate] = useState("");
 
@@ -131,25 +130,19 @@ const MakeLoanScreen = ({ route, navigation }) => {
       return;
     }
     const user_id = user.id;
-    if (!item_id || !borrow_date) {
+    if (!item_id || !borrow_date || !return_date) {
       alert("Please fill in all fields");
       return;
     }
 
     try {
-      // กำหนดสถานะเป็น "borrowed" โดยอัตโนมัติ
-      const status = "borrowed";
+      const status = "borrowed"; // Automatically set status as "borrowed"
 
-      const response = await addLoan(
-        user_id,
-        item_id,
-        status,
-        borrow_date,
-        return_date,
-        token
-      );
+      // Call API to add loan request
+      await addLoan(user_id, item_id, status, borrow_date, return_date, token);
+
       alert("Loan added successfully!");
-      navigation.navigate("Item", { token });
+      navigation.navigate("Item", { token }); // Navigate back to item list
     } catch (error) {
       alert("Error adding loan:", error.message);
     }
@@ -157,14 +150,8 @@ const MakeLoanScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Item ID"
-        value={item_id}
-        onChangeText={setItemId}
-        keyboardType="numeric"
-      />
-
+      <Text>Item ID: {item_id}</Text>{" "}
+      {/* Display item_id to confirm selection */}
       <Button
         title="Select Borrow Date"
         onPress={() => setShowBorrowDatePicker(true)}
@@ -181,7 +168,6 @@ const MakeLoanScreen = ({ route, navigation }) => {
         />
       )}
       <Text>Borrow Date: {borrow_date}</Text>
-
       <Button
         title="Select Return Date"
         onPress={() => setShowReturnDatePicker(true)}
@@ -198,7 +184,6 @@ const MakeLoanScreen = ({ route, navigation }) => {
         />
       )}
       <Text>Return Date: {return_date}</Text>
-
       <Button title="Submit Loan" onPress={handleSubmit} />
     </View>
   );

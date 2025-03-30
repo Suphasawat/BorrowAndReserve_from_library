@@ -39,7 +39,7 @@ const LoginScreen = () => {
         setModalVisible(true); // Show modal after successful login
 
         setModalVisible(false); // Close modal after a delay
-        navigation.navigate("Item", { token });
+        navigation.navigate("Item", { token, username });
         navigation.navigate("Room", { token });
         navigation.navigate("MakeLoan", { token, username });
         navigation.navigate("Booking", {

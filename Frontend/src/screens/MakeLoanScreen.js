@@ -110,14 +110,11 @@
 
 // export default makeLoanScreen;
 
-import React, { useState } from "react";
-import { View, TextInput, Button, Text, StyleSheet, Alert } from "react-native";
-import { addLoan } from "../services/api"; // ใช้ฟังก์ชัน addLoan จาก api
-import { useNavigation } from "@react-navigation/native"; // ใช้สำหรับการนำทาง
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, TextInput, Button } from "react-native";
+import { addLoan, getAllUsers } from "../services/api";
 
-const MakeLoanScreen = ({ route }) => {
-  // Get username and token from route parameters
-  const navigation = useNavigation(); // ใช้ useNavigation แทนการส่ง props
+const makeLoanScreen = ({ route }) => {
   const { username, token } = route.params || {};
 
   const [item_id, setItemId] = useState(""); // สถานะสำหรับ item_id
@@ -125,19 +122,23 @@ const MakeLoanScreen = ({ route }) => {
   const [due_date, setDueDate] = useState(""); // สถานะสำหรับ due_date
   const [status, setStatus] = useState(""); // สถานะสำหรับ loan status
   const [return_date, setReturnDate] = useState(""); // สถานะสำหรับ return_date
-  const [loading, setLoading] = useState(false); // สถานะการโหลด
 
   const handleSubmit = async () => {
-    if (!username || !item_id || !borrow_date || !due_date || !status) {
-      Alert.alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+    const userId = await getAllUsers(token);
+    const user = userId.find((user) => user.username === username);
+    if (!user) {
+      alert("User not found");
+      return;
+    }
+    const user_id = user.id;
+    if (!item_id || !borrow_date || !due_date || !status) {
+      alert("Please fill in all fields");
       return;
     }
 
-    setLoading(true);
     try {
-      // ส่งคำขอเพิ่มการยืม
       const response = await addLoan(
-        username,
+        user_id,
         item_id,
         status,
         borrow_date,
@@ -145,15 +146,10 @@ const MakeLoanScreen = ({ route }) => {
         return_date,
         token
       );
-
-      Alert.alert("การยืมเสร็จสมบูรณ์");
-
-      // โหลดข้อมูลไอเท็มใหม่เพื่ออัปเดต available_quantity
+      alert("Loan added successfully!");
       navigation.navigate("Item", { token });
     } catch (error) {
-      Alert.alert("เกิดข้อผิดพลาด", error.message);
-    } finally {
-      setLoading(false);
+      alert("Error adding loan:", error.message);
     }
   };
 
@@ -191,11 +187,7 @@ const MakeLoanScreen = ({ route }) => {
         value={return_date}
         onChangeText={setReturnDate}
       />
-      <Button
-        title={loading ? "Processing..." : "Submit Loan"}
-        onPress={handleSubmit}
-        disabled={loading}
-      />
+      <Button title="Submit Loan" onPress={handleSubmit} />
     </View>
   );
 };
@@ -215,4 +207,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MakeLoanScreen;
+export default makeLoanScreen;

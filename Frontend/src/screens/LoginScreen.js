@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,29 +10,42 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { loginUser } from "../services/api";
+import { loginUser, getAllUsers } from "../services/api";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [user_id, setUserId] = useState(); // State to store user_id
+
+  useEffect(() => {
+    if (user_id) {
+      console.log("Updated user_id:", user_id); // Logs user_id whenever it changes
+    }
+  }, [user_id]); // Runs whenever user_id changes
 
   const handleLogin = async () => {
     try {
       const token = await loginUser(username, password);
+      const users = await getAllUsers(token); // Fetch all users after login
+
+      // only user_id from username
+      const user = users.find((user) => user.username === username);
+      console.log("user:", user.id); // Log the user object
+      setUserId(user.id); // Set user_id state
+
       if (token) {
         setModalVisible(true); // Show modal after successful login
-        setTimeout(() => {
-          setModalVisible(false); // Close modal after a delay
-          navigation.navigate("Item", { token });
-          navigation.navigate("Room", { token });
-          navigation.navigate("MakeLoan", { token, username });
-          navigation.navigate("Booking", {
-            token,
-            username,
-          });
-        }, 2000); // Delay before navigating
+
+        setModalVisible(false); // Close modal after a delay
+        navigation.navigate("Item", { token });
+        navigation.navigate("Room", { token });
+        navigation.navigate("MakeLoan", { token, username });
+        navigation.navigate("Booking", {
+          token,
+          username,
+        });
       }
     } catch (error) {
       alert(error.message);

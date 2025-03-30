@@ -14,7 +14,6 @@ import {
   getAllItems,
   getAllLoans,
   getAllBookings,
-  updateRoomAvailability,
 } from "./src/routes/userRoutes.js";
 
 const app = express();
@@ -99,13 +98,6 @@ app.get("/loans", getAllLoans);
 
 // Get All Bookings Route
 app.get("/bookings", getAllBookings);
-
-// เพิ่ม Route
-app.post(
-  "/update-room-availability",
-  validateFields(["room_id", "is_available"]),
-  updateRoomAvailability
-);
 
 // Start server
 app.listen(port, () => {

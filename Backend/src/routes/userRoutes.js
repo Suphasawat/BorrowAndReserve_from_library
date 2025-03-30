@@ -122,10 +122,33 @@ export const addBooking = async (req, res) => {
   try {
     const { room_id, user_id, booking_date, start_time, end_time, status } =
       req.body;
+
+    // ตรวจสอบว่าห้องที่ต้องการจองว่างหรือไม่
+    const room = await allQuery(
+      `SELECT is_available FROM Rooms WHERE room_id = ?`,
+      [room_id]
+    );
+
+    if (room.length === 0) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    if (!room[0].is_available) {
+      return res.status(400).json({ message: "Room is not available" });
+    }
+
+    // เพิ่มข้อมูลการจอง
     await runQuery(
-      `INSERT INTO RoomBookings (room_id, user_id, booking_date, start_time, end_time, status) VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO RoomBookings (room_id, user_id, booking_date, start_time, end_time, status) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [room_id, user_id, booking_date, start_time, end_time, status]
     );
+
+    // อัปเดต is_available ของห้องเป็น false
+    await runQuery(`UPDATE Rooms SET is_available = FALSE WHERE room_id = ?`, [
+      room_id,
+    ]);
+
     res.status(201).json({ message: "Booking added successfully" });
   } catch (error) {
     res
@@ -147,7 +170,33 @@ export const getAllUsers = async (req, res) => {
 
 export const getAllRooms = async (req, res) => {
   try {
-    const rooms = await allQuery(`SELECT * FROM Rooms`);
+    // ดึงข้อมูลห้องทั้งหมด
+    let rooms = await allQuery(`SELECT * FROM Rooms`);
+
+    // ตรวจสอบการจองที่หมดอายุ
+    const now = new Date().toISOString(); // เวลาปัจจุบันในรูปแบบ ISO
+
+    // อัปเดตห้องที่หมดอายุให้ว่าง
+    await runQuery(
+      `UPDATE Rooms 
+       SET is_available = TRUE 
+       WHERE room_id IN (
+         SELECT room_id FROM RoomBookings WHERE end_time <= ? AND status = 'Booked'
+       )`,
+      [now]
+    );
+
+    // อัปเดตสถานะการจองที่หมดอายุเป็น "Expired"
+    await runQuery(
+      `UPDATE RoomBookings 
+       SET status = 'Expired' 
+       WHERE end_time <= ? AND status = 'Booked'`,
+      [now]
+    );
+
+    // ดึงข้อมูลห้องอีกครั้งหลังจากอัปเดต
+    rooms = await allQuery(`SELECT * FROM Rooms`);
+
     res.status(200).json(rooms);
   } catch (error) {
     res
@@ -186,23 +235,5 @@ export const getAllBookings = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error fetching bookings", error: error.message });
-  }
-};
-
-export const updateRoomAvailability = async (req, res) => {
-  try {
-    const { room_id, is_available } = req.body;
-
-    await runQuery(`UPDATE Rooms SET is_available = ? WHERE id = ?`, [
-      is_available,
-      room_id,
-    ]);
-
-    res.status(200).json({ message: "Room availability updated successfully" });
-  } catch (error) {
-    res.status(500).json({
-      message: "Error updating room availability",
-      error: error.message,
-    });
   }
 };

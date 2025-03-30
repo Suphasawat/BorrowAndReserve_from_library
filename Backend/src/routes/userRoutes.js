@@ -80,8 +80,7 @@ export const addItems = async (req, res) => {
 
 export const addLoan = async (req, res) => {
   try {
-    const { user_id, item_id, status, borrow_date, due_date, return_date } =
-      req.body;
+    const { user_id, item_id, status, borrow_date, return_date } = req.body;
 
     // ตรวจสอบว่าไอเท็มมีจำนวนเพียงพอหรือไม่
     const item = await allQuery(
@@ -99,9 +98,9 @@ export const addLoan = async (req, res) => {
 
     // เพิ่มข้อมูลการยืม
     await runQuery(
-      `INSERT INTO Loans (user_id, item_id, status, borrow_date, due_date, return_date) 
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [user_id, item_id, status, borrow_date, due_date, return_date]
+      `INSERT INTO Loans (user_id, item_id, status, borrow_date, return_date) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [user_id, item_id, status, borrow_date, return_date]
     );
 
     // อัปเดตจำนวน available_quantity ลดลง 1

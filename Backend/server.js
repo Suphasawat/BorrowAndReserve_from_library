@@ -64,7 +64,6 @@ app.post(
     "item_id",
     "status",
     "borrow_date",
-    "due_date",
     "return_date",
   ]),
   addLoan

@@ -1,13 +1,8 @@
-// import React, { useState } from "react";
-// import { View, TextInput, Button, Text, StyleSheet, Alert } from "react-native";
-// import { useNavigation } from "@react-navigation/native"; // ใช้สำหรับการนำทาง
-// import { addLoan } from "../services/api";
-// import axios from "axios";
+// import React, { useState, useEffect } from "react";
+// import { View, StyleSheet, TextInput, Button } from "react-native";
+// import { addLoan, getAllUsers } from "../services/api";
 
-// const API_URL = "http://192.168.1.15:5000"; // URL ของ API
-
-// const makeLoanScreen = ({ route, navigation }) => {
-//   // Get username and token from route parameters
+// const makeLoanScreen = ({ route }) => {
 //   const { username, token } = route.params || {};
 
 //   const [item_id, setItemId] = useState(""); // สถานะสำหรับ item_id
@@ -15,38 +10,34 @@
 //   const [due_date, setDueDate] = useState(""); // สถานะสำหรับ due_date
 //   const [status, setStatus] = useState(""); // สถานะสำหรับ loan status
 //   const [return_date, setReturnDate] = useState(""); // สถานะสำหรับ return_date
-//   const [loading, setLoading] = useState(false); // สถานะการโหลด
 
 //   const handleSubmit = async () => {
-//     if (!username || !item_id || !borrow_date || !due_date || !status) {
-//       Alert.alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+//     const userId = await getAllUsers(token);
+//     const user = userId.find((user) => user.username === username);
+//     if (!user) {
+//       alert("User not found");
+//       return;
+//     }
+//     const user_id = user.id;
+//     if (!item_id || !borrow_date || !due_date || !status) {
+//       alert("Please fill in all fields");
 //       return;
 //     }
 
-//     setLoading(true);
 //     try {
-//       const response = await axios.post(
-//         `${API_URL}/add-loan`,
-//         {
-//           user_id: username, // ใช้ username เป็น user_id
-//           item_id,
-//           status,
-//           borrow_date,
-//           due_date,
-//           return_date,
-//         },
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//         }
+//       const response = await addLoan(
+//         user_id,
+//         item_id,
+//         status,
+//         borrow_date,
+//         due_date,
+//         return_date,
+//         token
 //       );
-//       Alert.alert("การยืมเสร็จสมบูรณ์");
-//       navigation.goBack(); // กลับไปหน้าก่อนหน้านี้
+//       alert("Loan added successfully!");
+//       navigation.navigate("Item", { token });
 //     } catch (error) {
-//       Alert.alert("เกิดข้อผิดพลาดในการยืม", error.message);
-//     } finally {
-//       setLoading(false);
+//       alert("Error adding loan:", error.message);
 //     }
 //   };
 
@@ -84,11 +75,7 @@
 //         value={return_date}
 //         onChangeText={setReturnDate}
 //       />
-//       <Button
-//         title={loading ? "Processing..." : "Submit Loan"}
-//         onPress={handleSubmit}
-//         disabled={loading}
-//       />
+//       <Button title="Submit Loan" onPress={handleSubmit} />
 //     </View>
 //   );
 // };
@@ -110,18 +97,31 @@
 
 // export default makeLoanScreen;
 
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, TextInput, Button } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, Button, TextInput, Text } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { addLoan, getAllUsers } from "../services/api";
 
-const makeLoanScreen = ({ route }) => {
+const MakeLoanScreen = ({ route, navigation }) => {
   const { username, token } = route.params || {};
 
-  const [item_id, setItemId] = useState(""); // สถานะสำหรับ item_id
-  const [borrow_date, setBorrowDate] = useState(""); // สถานะสำหรับ borrow_date
-  const [due_date, setDueDate] = useState(""); // สถานะสำหรับ due_date
-  const [status, setStatus] = useState(""); // สถานะสำหรับ loan status
-  const [return_date, setReturnDate] = useState(""); // สถานะสำหรับ return_date
+  const [item_id, setItemId] = useState("");
+  const [borrow_date, setBorrowDate] = useState("");
+  const [return_date, setReturnDate] = useState("");
+
+  const [showBorrowDatePicker, setShowBorrowDatePicker] = useState(false);
+  const [showReturnDatePicker, setShowReturnDatePicker] = useState(false);
+
+  const handleDateChange = (event, selectedDate, dateType) => {
+    const currentDate = selectedDate || new Date();
+    if (dateType === "borrow") {
+      setBorrowDate(currentDate.toISOString().split("T")[0]);
+    } else if (dateType === "return") {
+      setReturnDate(currentDate.toISOString().split("T")[0]);
+    }
+    if (dateType === "borrow") setShowBorrowDatePicker(false);
+    if (dateType === "return") setShowReturnDatePicker(false);
+  };
 
   const handleSubmit = async () => {
     const userId = await getAllUsers(token);
@@ -131,18 +131,20 @@ const makeLoanScreen = ({ route }) => {
       return;
     }
     const user_id = user.id;
-    if (!item_id || !borrow_date || !due_date || !status) {
+    if (!item_id || !borrow_date) {
       alert("Please fill in all fields");
       return;
     }
 
     try {
+      // กำหนดสถานะเป็น "borrowed" โดยอัตโนมัติ
+      const status = "borrowed";
+
       const response = await addLoan(
         user_id,
         item_id,
         status,
         borrow_date,
-        due_date,
         return_date,
         token
       );
@@ -155,7 +157,6 @@ const makeLoanScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      {/* No need for a userId input field anymore */}
       <TextInput
         style={styles.input}
         placeholder="Item ID"
@@ -163,30 +164,41 @@ const makeLoanScreen = ({ route }) => {
         onChangeText={setItemId}
         keyboardType="numeric"
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Borrow Date (YYYY-MM-DD)"
-        value={borrow_date}
-        onChangeText={setBorrowDate}
+
+      <Button
+        title="Select Borrow Date"
+        onPress={() => setShowBorrowDatePicker(true)}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Due Date (YYYY-MM-DD)"
-        value={due_date}
-        onChangeText={setDueDate}
+      {showBorrowDatePicker && (
+        <DateTimePicker
+          testID="borrowDatePicker"
+          value={new Date(borrow_date || new Date())}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) =>
+            handleDateChange(event, selectedDate, "borrow")
+          }
+        />
+      )}
+      <Text>Borrow Date: {borrow_date}</Text>
+
+      <Button
+        title="Select Return Date"
+        onPress={() => setShowReturnDatePicker(true)}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Loan Status"
-        value={status}
-        onChangeText={setStatus}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Return Date (YYYY-MM-DD)"
-        value={return_date}
-        onChangeText={setReturnDate}
-      />
+      {showReturnDatePicker && (
+        <DateTimePicker
+          testID="returnDatePicker"
+          value={new Date(return_date || new Date())}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) =>
+            handleDateChange(event, selectedDate, "return")
+          }
+        />
+      )}
+      <Text>Return Date: {return_date}</Text>
+
       <Button title="Submit Loan" onPress={handleSubmit} />
     </View>
   );
@@ -207,4 +219,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default makeLoanScreen;
+export default MakeLoanScreen;

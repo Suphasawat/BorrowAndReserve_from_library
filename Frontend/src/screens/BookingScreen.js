@@ -174,7 +174,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
   FlatList,
   Alert,
   TouchableOpacity,
@@ -196,7 +195,7 @@ const BookingScreen = ({ route }) => {
       const response = await getAllRooms(token);
       console.log("Fetched Rooms:", response);
 
-      const availableRooms = response?.filter((room) => room.is_available);
+      const availableRooms = response;
       console.log("Available Rooms:", availableRooms);
 
       setRooms(availableRooms || []);
@@ -236,6 +235,9 @@ const BookingScreen = ({ route }) => {
         token
       );
       Alert.alert("Success", "Booking successful!");
+
+      // รีเฟรชห้องที่สามารถจองได้หลังจากการจองสำเร็จ
+      fetchRooms();
     } catch (error) {
       Alert.alert("Error", error.message);
     }
@@ -257,14 +259,20 @@ const BookingScreen = ({ route }) => {
             </Text>
             <Text style={styles.text}>Capacity: {item.capacity || "N/A"}</Text>
             <Text style={styles.text}>Room ID: {item.room_id || "N/A"}</Text>
+            <Text style={styles.text}>
+              Available: {item.is_available ? "Yes" : "No"}
+            </Text>
 
             <TouchableOpacity
               style={[
                 styles.bookButton,
                 (!item?.room_id || !username?.trim()) && styles.disabledButton,
+                !item.is_available && styles.disabledButton, // disable if not available
               ]}
               onPress={() => handleBooking(item?.room_id)}
-              disabled={!item?.room_id || !username?.trim()}
+              disabled={
+                !item?.room_id || !username?.trim() || !item.is_available // disable button if the room is not available
+              }
             >
               <Text style={styles.buttonText}>Book Now</Text>
             </TouchableOpacity>
@@ -323,7 +331,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   disabledButton: {
-    backgroundColor: "#cccccc",
+    backgroundColor: "#cccccc", // gray color for disabled button
   },
 });
 

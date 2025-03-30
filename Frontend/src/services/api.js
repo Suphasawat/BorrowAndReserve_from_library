@@ -74,14 +74,13 @@ export const addLoan = async (
   item_id,
   status,
   borrow_date,
-  due_date,
   return_date,
   token
 ) => {
   try {
     const response = await axios.post(
       `${API_URL}/add-loan`,
-      { user_id, item_id, status, borrow_date, due_date, return_date },
+      { user_id, item_id, status, borrow_date, return_date },
       {
         headers: { Authorization: `Bearer ${token}` }, // ใช้ token สำหรับการยืนยันตัวตน
       }

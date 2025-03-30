@@ -5,7 +5,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import LoginScreen from "./src/screens/LoginScreen";
 import RegisterScreen from "./src/screens/RegisterScreen";
 import ItemScreen from "./src/screens/ItemScreen";
-import RoomScreen from "./src/screens/RoomScreen";
 import MakeLoanScreen from "./src/screens/MakeLoanScreen";
 import BookingScreen from "./src/screens/BookingScreen";
 
@@ -18,7 +17,6 @@ export default function App() {
         <Tab.Screen name="Login" component={LoginScreen} />
         <Tab.Screen name="Register" component={RegisterScreen} />
         <Tab.Screen name="Item" component={ItemScreen} />
-        <Tab.Screen name="Room" component={RoomScreen} />
         <Tab.Screen name="MakeLoan" component={MakeLoanScreen} />
         <Tab.Screen name="Booking" component={BookingScreen} />
       </Tab.Navigator>

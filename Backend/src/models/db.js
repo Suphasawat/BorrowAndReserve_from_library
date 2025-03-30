@@ -50,7 +50,6 @@ export const initDB = () => {
       item_id INTEGER REFERENCES Items(id) ON DELETE CASCADE,
       status TEXT CHECK (status IN ('pending', 'borrowed', 'returned', 'cancelled')) DEFAULT 'pending',
       borrow_date DATE,
-      due_date DATE,
       return_date DATE,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
